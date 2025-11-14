@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhotoTemi-QR - 이미지 보기</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 900px;
+      width: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+    .info {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .timer {
+      color: #e74c3c;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    .image-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .image-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    button, a.button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.3s;
+    }
+    button:hover, a.button:hover {
+      background: #5568d3;
+    }
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📸 PhotoTemi-QR</h1>
+    </div>
+    
+    <div class="info">
+      <div class="info-item">
+        <span>📁 파일명:</span>
+        <strong>{{ORIGINAL_NAME}}</strong>
+      </div>
+      <div class="info-item">
+        <span>⏰ 남은 시간:</span>
+        <span class="timer" id="timer">{{REMAINING_MINUTES}}분</span>
+      </div>
+    </div>
+
+    <div class="image-container">
+      <img src="{{IMAGE_URL}}" alt="{{ORIGINAL_NAME}}">
+    </div>
+
+    <div class="actions">
+      <a href="{{IMAGE_URL}}" class="button" download>💾 다운로드</a>
+      <button onclick="copyUrl()">🔗 URL 복사</button>
+      <button onclick="location.reload()">🔄 새로고침</button>
+    </div>
+
+    <div class="warning">
+      ⚠️ 이 이미지는 업로드 후 10분간만 유효합니다.
+    </div>
+  </div>
+
+  <script>
+    // URL 복사 기능
+    function copyUrl() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('URL이 클립보드에 복사되었습니다!');
+      }).catch(err => {
+        alert('URL 복사 실패: ' + err);
+      });
+    }
+
+    // 남은 시간 업데이트
+    const expiresAt = new Date('{{EXPIRES_AT}}');
+    
+    function updateTimer() {
+      const now = new Date();
+      const remaining = expiresAt - now;
+      
+      if (remaining <= 0) {
+        document.getElementById('timer').textContent = '만료됨';
+        setTimeout(() => {
+          location.reload();
+        }, 2000);
+        return;
+      }
+      
+      const minutes = Math.floor(remaining / 1000 / 60);
+      const seconds = Math.floor((remaining / 1000) % 60);
+      document.getElementById('timer').textContent = minutes + '분 ' + seconds + '초';
+    }
+    
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
+
