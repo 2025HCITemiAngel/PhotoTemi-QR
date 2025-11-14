@@ -2,15 +2,42 @@
 
 Node.js와 Express로 구축된 PhotoTemi-QR 서버입니다.
 
-## 설치
+## 설치 및 실행
+
+### 방법 1: Docker Compose 사용 (권장)
+
+Docker Compose를 사용하면 간단하게 서버를 실행할 수 있습니다.
 
 ```bash
-npm install
+# Docker Compose로 실행
+docker-compose up -d
+
+# 로그 확인
+docker-compose logs -f
+
+# 중지
+docker-compose down
 ```
 
-## 실행
+서버가 실행되면 `http://localhost:3000`에서 접속할 수 있습니다.
+
+#### 환경 변수 설정
+
+포트 변경이 필요한 경우 `.env` 파일을 생성하세요:
 
 ```bash
+# .env 파일
+PORT=3000
+NODE_ENV=production
+```
+
+### 방법 2: 직접 설치 및 실행
+
+```bash
+# 의존성 설치
+npm install
+
+# 서버 실행
 npm start
 ```
 
@@ -77,3 +104,26 @@ PhotoTemi-QR/
 - **Multer** - 파일 업로드 미들웨어
 - **Morgan** - HTTP 요청 로깅
 - **Crypto (내장)** - 고유 ID 생성
+- **Docker** - 컨테이너화 및 배포
+
+## Docker 관련 파일
+
+- `Dockerfile` - Node.js 애플리케이션을 위한 Docker 이미지 정의
+- `docker-compose.yml` - Docker Compose 설정 파일
+- `.dockerignore` - Docker 이미지 빌드 시 제외할 파일 목록
+
+### Docker 이미지 빌드
+
+```bash
+# 이미지 빌드
+docker build -t phototemi-qr .
+
+# 컨테이너 실행
+docker run -d -p 3000:3000 --name phototemi-qr phototemi-qr
+```
+
+### 프로덕션 배포 시 참고사항
+
+1. **포트 설정**: 필요에 따라 `.env` 파일에서 포트를 변경할 수 있습니다.
+2. **업로드 디렉토리**: 기본적으로 컨테이너 내부에 저장되며, 컨테이너 재시작 시 삭제됩니다. 영속성이 필요한 경우 `docker-compose.yml`의 volumes 주석을 해제하세요.
+3. **헬스체크**: Docker Compose 설정에 헬스체크가 포함되어 있어 컨테이너 상태를 모니터링할 수 있습니다.
