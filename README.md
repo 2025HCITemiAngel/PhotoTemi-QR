@@ -20,8 +20,6 @@ npm start
 npm run dev
 ```
 
-서버는 기본적으로 `http://localhost:3000`에서 실행됩니다.
-
 ## 주요 기능
 
 ### 이미지 업로드 및 임시 저장
@@ -29,12 +27,6 @@ npm run dev
 - 안드로이드에서 이미지를 업로드하면 서버가 이미지를 저장하고 고유 URL을 반환
 - 업로드된 이미지는 **10분 후 자동 삭제** (DB 불필요)
 - QR 코드를 생성하여 다른 기기에서 이미지 확인 가능
-
-### 데이터베이스가 필요 없는 이유
-
-- 이미지는 10분만 유지되므로 임시 저장만 필요
-- 메모리(Map)와 파일 시스템만으로 충분
-- 자동 삭제 메커니즘(setTimeout)으로 관리
 
 ## API 엔드포인트
 
@@ -51,17 +43,32 @@ npm run dev
 
 ```
 PhotoTemi-QR/
-├── server.js                  # 메인 서버 파일 (로깅 포함)
-├── public/                    # 정적 파일 디렉토리
-│   ├── index.html            # 메인 HTML 페이지
-│   └── upload.html           # 업로드 테스트 페이지
-├── uploads/                   # 업로드된 이미지 저장 (자동 생성, gitignore)
-├── package.json              # 프로젝트 설정 및 의존성
-├── README.md                 # 프로젝트 문서
-├── API_DOCUMENTATION.md      # API 문서 (안드로이드 개발용)
-├── LOGGING.md                # 로깅 시스템 상세 가이드
-└── .gitignore               # Git 제외 파일 목록
+├── config/                   # 설정 파일
+│   └── config.js            # 애플리케이션 전역 설정
+├── middleware/              # Express 미들웨어
+│   └── upload.js           # Multer 업로드 설정
+├── routes/                  # 라우트 핸들러
+│   ├── index.js            # 기본 라우트
+│   ├── api.js              # API 라우트
+│   └── view.js             # 이미지 뷰 라우트
+├── utils/                   # 유틸리티 함수
+│   ├── logger.js           # 로깅 시스템
+│   └── imageStore.js       # 이미지 저장소 및 스케줄러
+├── public/                  # 정적 파일
+│   ├── index.html          # 메인 페이지
+│   ├── upload.html         # 업로드 페이지
+│   ├── view-image.html     # 이미지 보기 템플릿
+│   └── not-found.html      # 404 페이지
+├── uploads/                 # 업로드된 이미지 저장 (자동 생성, gitignore)
+├── server.js               # 메인 서버 파일 (간소화됨)
+├── package.json            # 프로젝트 설정 및 의존성
+├── README.md               # 프로젝트 문서
+├── API_DOCUMENTATION.md    # API 문서 (안드로이드 개발용)
+├── PROJECT_STRUCTURE.md    # 상세한 프로젝트 구조 설명
+└── .gitignore             # Git 제외 파일 목록
 ```
+
+> **📝 참고**: 프로젝트 구조와 아키텍처에 대한 자세한 설명은 [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)를 참고하세요.
 
 ## 기술 스택
 
@@ -70,45 +77,3 @@ PhotoTemi-QR/
 - **Multer** - 파일 업로드 미들웨어
 - **Morgan** - HTTP 요청 로깅
 - **Crypto (내장)** - 고유 ID 생성
-
-## 로깅 기능
-
-서버는 다음과 같은 상세한 로그를 제공합니다:
-
-### 로그 타입
-
-- **[INFO]** - 일반 정보
-- **[SUCCESS]** ✅ - 성공 작업
-- **[WARNING]** ⚠️ - 경고 메시지
-- **[ERROR]** ❌ - 오류 메시지
-- **[UPLOAD]** 📤 - 이미지 업로드 정보
-- **[DELETE]** 🗑️ - 이미지 삭제 정보
-- **[VIEW]** 👁️ - 이미지 조회 정보
-
-### 로그 예시
-
-```
-[INFO] [2024-01-15T12:00:00.000Z] 업로드 디렉토리 확인됨: C:\uploads
-[UPLOAD] [2024-01-15T12:05:30.000Z] 📤 이미지 업로드 - ID: abc123, 파일: photo.jpg, 크기: 1024.50KB
-[SUCCESS] [2024-01-15T12:05:30.000Z] ✅ 이미지 업로드 완료 - ID: abc123
-[VIEW] [2024-01-15T12:10:00.000Z] 👁️ 이미지 조회 - ID: abc123
-[DELETE] [2024-01-15T12:15:30.000Z] 🗑️ 이미지 자동 삭제 - ID: abc123
-```
-
-### HTTP 요청 로그 (Morgan)
-
-모든 HTTP 요청은 다음 형식으로 기록됩니다:
-
-```
-GET /api/health 200 - 5.123 ms
-POST /api/upload 200 - 234.567 ms 파일: photo.jpg
-```
-
-## 환경 변수
-
-`.env` 파일을 생성하여 다음 환경 변수를 설정할 수 있습니다:
-
-```
-PORT=3000
-NODE_ENV=development
-```
